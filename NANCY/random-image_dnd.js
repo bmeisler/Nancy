@@ -1,7 +1,69 @@
 
 var loadem = function() {
 
+    var draggableItem = function(){
+        console.log("new instance of draggableItem");
+        var my = {};
+        //var mc, main, callback;
+       
 
+        function addListeners () {
+            console.log("addListeners");
+            //var that = this;//BEST PART OF MODULE - DON'T HAVE TO DO THIS NONSENSE ANYMORE!
+            my.mc.useHandCursor = true;
+            my.mc.mouseEnabled = true;
+            my.mc.mouseChildren = false;
+
+            this.rolloverListener = my.mc.on("rollover", function(evt) {
+                my.mc.cursor = 'pointer';
+            });
+            this.rolloutListener = my.mc.on("rollout", function(evt) {
+                my.mc.cursor = 'default';
+            });
+
+            this.mousedownListener = my.mc.on("mousedown", function(evt) {
+                this.offset = {
+                    x: my.mc.x - evt.stageX,
+                    y: my.mc.y - evt.stageY
+                };
+                my.main.myViz.getPlayer().stopWaiting("task0");
+            });
+
+            // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
+            this.pressMoveListener = my.mc.on("pressmove", function(evt) {
+                this.x = evt.stageX + this.offset.x;
+                this.y = evt.stageY + this.offset.y;
+                my.callback(this);//
+            });
+
+            my.mc.onPress = function() {
+                console.log("pressed DNDItem");
+                //my.startDrag();
+            };
+
+
+
+            my.mc.onMouseUp = function() {
+                console.log("DNDItem mouse up");
+                // that.callback(this.offset);
+
+            };
+        }
+        function init(_main, _mc, _callback){
+            console.log("draggableItem::init()");
+            my.main = _main;
+            this.mc = _mc;
+            my.mc = _mc;
+            my.callback = _callback;
+            addListeners();
+            return my;//the key - holds all the data for outside use
+        }
+        var mc = null;
+        return {
+            init : init,
+            mc : mc
+        };
+    };
 
     function loadImages(sources, callback) {
         console.log("loadImages");
@@ -60,6 +122,9 @@ var loadem = function() {
     function handleFileComplete() {
         imagesLoaded++;
         console.log("imagesLoaded: " + imagesLoaded);
+
+        var container = new createjs.Container();
+        stage.addChild(container);
         
         if (imagesLoaded === 4) {
             loadImages(finalFourImages, function(images) { //turn the final four random urls into images and call them back here
@@ -84,6 +149,7 @@ var loadem = function() {
                         spacer = 30;
                     }
                     var width, height;
+                    var dndItem;
                     var originalWidth = images[i].width; // Current image width
                     var originalHeight = images[i].height; // Current image height
 
@@ -112,11 +178,18 @@ var loadem = function() {
 
                      var finalRatio = width/originalWidth;
                      bitmap = new createjs.Bitmap(finalFourImages[i]);
+                     container.addChild(bitmap);
                      bitmap.scaleX = finalRatio;
                      bitmap.scaleY = finalRatio;
                      bitmap.x = previousWidth;
-                     stage.addChild(bitmap);
-                    previousWidth += width;
+                     //stage.addChild(bitmap);
+                     previousWidth += width;
+
+                     //bitmap.cursor = "pointer";
+
+                     dndItem = draggableItem();
+                     dndItem.init(this, bitmap);
+
 
 
                 }
@@ -135,6 +208,11 @@ var loadem = function() {
 
   var stage = new createjs.Stage(canvas);
   createjs.Ticker.addEventListener("tick", stage);
+  // enable touch interactions if supported on the current device:
+        createjs.Touch.enable(stage);
+        // enabled mouse over / out events
+        stage.enableMouseOver(10);
+        stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
 
  var circle = new createjs.Shape();
 circle.graphics.beginFill("red").drawCircle(0, 0, 50);
