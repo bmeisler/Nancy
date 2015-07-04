@@ -8,17 +8,15 @@ var loadem = function() {
 
        
 
-        var circle = new createjs.Shape();
-circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-circle.x = 100;
-circle.y = 100;
-stage.addChild(circle);
+//         var circle = new createjs.Shape();
+// circle.graphics.beginFill("blue").drawCircle(0, 0, 50);
+// circle.x = 200;
+// circle.y = 200;
+// stage.addChild(circle);
 
         var images = {};
         var loadedImages = 0;
         var numImages = sources.length;
-
-        var bitmap;
 
         for (var src in sources) {
             images[src] = new Image();
@@ -30,9 +28,10 @@ stage.addChild(circle);
             images[src].src = sources[src];
             console.log("images[src].src: " + images[src].src);
 
-
-            //bitmap = new createjs.Bitmap(images[src].src);
-            //stage.addChild(bitmap);
+            
+            // bitmap = new createjs.Bitmap(images[src].src);
+            // bitmap.x += 150;
+            // stage.addChild(bitmap);
         }
 
 
@@ -71,7 +70,7 @@ stage.addChild(circle);
                 var maxHeight = 170; // Max height for the image
                 var ratio = 0; // Used for aspect ratio
 
-
+                console.log("images[i]: " + images[0]);
 
 
                 var i, previousWidth = 0,
@@ -110,9 +109,12 @@ stage.addChild(circle);
                     }
 
                     //context.drawImage(images[i], previousWidth, 20, width, height);
-                    //bitmap = new createjs.Bitmap(images[i]);
-                    // stage.addChild(images[i]);
-                    // previousWidth += width;
+                     bitmap = new createjs.Bitmap(finalFourImages[i]);
+                     bitmap.scaleX = ratio;
+                     bitmap.scaleY = ratio;
+                     bitmap.x = previousWidth;
+                     stage.addChild(bitmap);
+                    previousWidth += width;
 
 
                 }
@@ -123,13 +125,14 @@ stage.addChild(circle);
     }
     var imagesLoaded = 0;
     var canvas = document.getElementById('myCanvas');
-    var context = canvas.getContext('2d');
+    //var context = canvas.getContext('2d');
     //context.clearRect(0, 0, canvas.width, canvas.height);
 
     var preload = new createjs.LoadQueue(false); //setting this value to false allows local preloading
-    //preload.addEventListener("fileload", handleFileComplete);
+    preload.addEventListener("fileload", handleFileComplete);
 
- var stage = new createjs.Stage(canvas);
+  var stage = new createjs.Stage(canvas);
+  createjs.Ticker.addEventListener("tick", stage);
 
  var circle = new createjs.Shape();
 circle.graphics.beginFill("red").drawCircle(0, 0, 50);
