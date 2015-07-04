@@ -83,35 +83,37 @@ var loadem = function() {
                     } else {
                         spacer = 30;
                     }
-
-                    var width = images[i].width; // Current image width
-                    var height = images[i].height; // Current image height
+                    var width, height;
+                    var originalWidth = images[i].width; // Current image width
+                    var originalHeight = images[i].height; // Current image height
 
                     // Check if the current width is larger than the max
-                    if (width > maxWidth) {
-                        ratio = maxWidth / width; // get ratio for scaling image
+                    if (originalWidth > maxWidth) {
+                        ratio = maxWidth / originalWidth; // get ratio for scaling image
 
-                        height = height * ratio; // Reset height to match scaled image
-                        width = width * ratio; // Reset width to match scaled image
+                        height = originalHeight * ratio; // Reset height to match scaled image
+                        width = originalWidth * ratio; // Reset width to match scaled image
                     }
 
                     // Check if current height is larger than max
-                    if (height > maxHeight) {
-                        ratio = maxHeight / height; // get ratio for scaling image
+                    if (originalHeight > maxHeight) {
+                        ratio = maxHeight / originalHeight; // get ratio for scaling image
 
-                        width = width * ratio; // Reset width to match scaled image
-                        height = height * ratio; // Reset height to match scaled image
-                    } else if (height < maxHeight) {
-                        ratio = maxHeight / height; // get ratio for scaling image
+                        width = originalWidth * ratio; // Reset width to match scaled image
+                        height = originalHeight * ratio; // Reset height to match scaled image
+                    } else if (originalHeight < maxHeight) {
+                        ratio = maxHeight / originalHeight; // get ratio for scaling image
 
-                        width = width * ratio; // Reset width to match scaled image
-                        height = height * ratio; // Reset height to match scaled image
+                        width = originalWidth * ratio; // Reset width to match scaled image
+                        height = originalHeight * ratio; // Reset height to match scaled image
                     }
 
                     //context.drawImage(images[i], previousWidth, 20, width, height);
+
+                     var finalRatio = width/originalWidth;
                      bitmap = new createjs.Bitmap(finalFourImages[i]);
-                     bitmap.scaleX = ratio;
-                     bitmap.scaleY = ratio;
+                     bitmap.scaleX = finalRatio;
+                     bitmap.scaleY = finalRatio;
                      bitmap.x = previousWidth;
                      stage.addChild(bitmap);
                     previousWidth += width;
