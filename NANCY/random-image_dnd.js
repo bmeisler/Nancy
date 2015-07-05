@@ -1,25 +1,11 @@
 
 var loadem = function() {
 
-    var tileItem = function(){
-        var my = {};
-        function init(_bitmap, _xpos, _ypos, _id){
-            console.log("new tile");
-            my.bitmap = _bitmap;
-            my.xpos = _xpos;
-            my.ypos = _ypos;
-            my.id = _id;
-        }
-        return {
-            init : init,
-        };
-    };
-
-    var draggableItem = function(){
+    var draggableItem = function() {
         console.log("new instance of draggableItem");
-        var my = {};       
+        var my = {};
 
-        function addListeners () {
+        function addListeners() {
             console.log("addListeners");
             //var that = this;//BEST PART OF MODULE - DON'T HAVE TO DO THIS NONSENSE ANYMORE!
             my.mc.useHandCursor = true;
@@ -45,15 +31,16 @@ var loadem = function() {
                 this.x = evt.stageX + this.offset.x;
                 this.y = evt.stageY + this.offset.y;
                 console.log("this.x: " + this.x);
-                my.callback(this);//
+                my.callback(this); //
             });
 
-            this.pressupListener = my.mc.on("pressup", function(evt){
-                 console.log("DNDItem mouse up");
+            this.pressupListener = my.mc.on("pressup", function(evt) {
+                console.log("DNDItem mouse up");
                 my.callback2(this);
             });
         }
-        function init(_main, _mc, _callback, _callback2){
+
+        function init(_main, _mc, _callback, _callback2) {
             console.log("draggableItem::init()");
             my.main = _main;
             this.mc = _mc;
@@ -61,12 +48,12 @@ var loadem = function() {
             my.callback = _callback;
             my.callback2 = _callback2;
             addListeners();
-            return my;//the key - holds all the data for outside use
+            return my; //the key - holds all the data for outside use
         }
         var mc = null;
         return {
-            init : init,
-            mc : mc
+            init: init,
+            mc: mc
         };
     };
 
@@ -112,30 +99,22 @@ var loadem = function() {
         return array;
     }
 
-    function spliceIt(obj){
+    function spliceIt(obj) {
         console.log("spliceIt");
-        obj.parent.setChildIndex(obj, obj.parent.getNumChildren()-1);//put it on top while dragging
-        stage.addChild(insertBar);
-        var i;
-        var p0;
-        for (i=0; i<bitmaps.length; i++){
-            p0 = obj.localToLocal(0,0, bitmaps[i]);
-            if (obj.hitTest(p0.x, p0.y)){
-                console.log("hit bitmap: " + i);
-                insertBar.x = bitmaps[i].x;
-            }
-        }
+        obj.parent.setChildIndex(obj, obj.parent.getNumChildren() - 1); //put it on top while dragging
     }
-    function diceIt(){
+
+    function diceIt() {
         console.log("diceit");
     }
+
     function handleFileComplete() {
         imagesLoaded++;
         console.log("imagesLoaded: " + imagesLoaded);
 
         var container = new createjs.Container();
         stage.addChild(container);
-        
+
         if (imagesLoaded === 4) {
             loadImages(finalFourImages, function(images) { //turn the final four random urls into images and call them back here
                 console.log("loadimages");
@@ -186,20 +165,17 @@ var loadem = function() {
 
                     //context.drawImage(images[i], previousWidth, 20, width, height);
 
-                     var finalRatio = width/originalWidth;
-                     bitmap = new createjs.Bitmap(finalFourImages[i]);
-                     bitmaps.push(bitmap);
-                     container.addChild(bitmap);
-                     bitmap.scaleX = finalRatio;
-                     bitmap.scaleY = finalRatio;
-                     bitmap.x = previousWidth;
-                     previousWidth += width;
+                    var finalRatio = width / originalWidth;
+                    bitmap = new createjs.Bitmap(finalFourImages[i]);
+                    bitmaps.push(bitmap);
+                    container.addChild(bitmap);
+                    bitmap.scaleX = finalRatio;
+                    bitmap.scaleY = finalRatio;
+                    bitmap.x = previousWidth;
+                    previousWidth += width;
 
-                     dndItem = draggableItem();
-                     dndItem.init(this, bitmap, spliceIt, diceIt);
-
-                     tile = tileItem();
-                     tile.init(bitmap, bitmap.x, bitmap.y, i);
+                    dndItem = draggableItem();
+                    dndItem.init(this, bitmap, spliceIt, diceIt);
 
                 }
 
@@ -217,23 +193,23 @@ var loadem = function() {
     var preload = new createjs.LoadQueue(false); //setting this value to false allows local preloading
     preload.addEventListener("fileload", handleFileComplete);
 
-  var stage = new createjs.Stage(canvas);
-  createjs.Ticker.addEventListener("tick", stage);
-  // enable touch interactions if supported on the current device:
-        createjs.Touch.enable(stage);
-        // enabled mouse over / out events
-        stage.enableMouseOver(10);
-        stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
+    var stage = new createjs.Stage(canvas);
+    createjs.Ticker.addEventListener("tick", stage);
+    // enable touch interactions if supported on the current device:
+    createjs.Touch.enable(stage);
+    // enabled mouse over / out events
+    stage.enableMouseOver(10);
+    stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
 
-var insertBar = new createjs.Shape();//will light up to show us where the bitmap being dragged will drop
-insertBar.graphics.beginFill("green").drawRect(0, 0, 5, 170);
+    var insertBar = new createjs.Shape(); //will light up to show us where the bitmap being dragged will drop
+    insertBar.graphics.beginFill("green").drawRect(0, 0, 5, 170);
 
-var bitmaps = [];
-//  var circle = new createjs.Shape();
-// circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-// circle.x = 100;
-// circle.y = 100;
-// stage.addChild(circle);
+    var bitmaps = [];
+    //  var circle = new createjs.Shape();
+    // circle.graphics.beginFill("red").drawCircle(0, 0, 50);
+    // circle.x = 100;
+    // circle.y = 100;
+    // stage.addChild(circle);
 
 
     //var nancyArray = [{nanc11: 'nancya.png'}, {nancy2:'nancyb.png'}, {nancy3:'nancyc.png'}, {nancy4:'nancyd.png'}];
