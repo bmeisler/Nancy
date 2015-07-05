@@ -16,6 +16,7 @@
       console.log("imageTest");
 
       var stage = new createjs.Stage("myCanvas");
+      createjs.Ticker.addEventListener("tick", stage);
 
       var circle = new createjs.Shape();
       circle.graphics.beginFill("red").drawCircle(0, 0, 50);
