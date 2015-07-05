@@ -1,11 +1,23 @@
 
 var loadem = function() {
 
+    var tileItem = function(){
+        var my = {};
+        function init(_bitmap, _xpos, _ypos, _id){
+            console.log("new tile");
+            my.bitmap = _bitmap;
+            my.xpos = _xpos;
+            my.ypos = _ypos;
+            my.id = _id;
+        }
+        return {
+            init : init,
+        };
+    };
+
     var draggableItem = function(){
         console.log("new instance of draggableItem");
-        var my = {};
-        //var mc, main, callback;
-       
+        var my = {};       
 
         function addListeners () {
             console.log("addListeners");
@@ -26,35 +38,28 @@ var loadem = function() {
                     x: my.mc.x - evt.stageX,
                     y: my.mc.y - evt.stageY
                 };
-                my.main.myViz.getPlayer().stopWaiting("task0");
             });
 
             // the pressmove event is dispatched when the mouse moves after a mousedown on the target until the mouse is released.
             this.pressMoveListener = my.mc.on("pressmove", function(evt) {
                 this.x = evt.stageX + this.offset.x;
                 this.y = evt.stageY + this.offset.y;
+                console.log("this.x: " + this.x);
                 my.callback(this);//
             });
 
-            my.mc.onPress = function() {
-                console.log("pressed DNDItem");
-                //my.startDrag();
-            };
-
-
-
-            my.mc.onMouseUp = function() {
-                console.log("DNDItem mouse up");
-                // that.callback(this.offset);
-
-            };
+            this.pressupListener = my.mc.on("pressup", function(evt){
+                 console.log("DNDItem mouse up");
+                my.callback2(this);
+            });
         }
-        function init(_main, _mc, _callback){
+        function init(_main, _mc, _callback, _callback2){
             console.log("draggableItem::init()");
             my.main = _main;
             this.mc = _mc;
             my.mc = _mc;
             my.callback = _callback;
+            my.callback2 = _callback2;
             addListeners();
             return my;//the key - holds all the data for outside use
         }
@@ -67,14 +72,6 @@ var loadem = function() {
 
     function loadImages(sources, callback) {
         console.log("loadImages");
-
-       
-
-//         var circle = new createjs.Shape();
-// circle.graphics.beginFill("blue").drawCircle(0, 0, 50);
-// circle.x = 200;
-// circle.y = 200;
-// stage.addChild(circle);
 
         var images = {};
         var loadedImages = 0;
@@ -90,10 +87,6 @@ var loadem = function() {
             images[src].src = sources[src];
             console.log("images[src].src: " + images[src].src);
 
-            
-            // bitmap = new createjs.Bitmap(images[src].src);
-            // bitmap.x += 150;
-            // stage.addChild(bitmap);
         }
 
 
@@ -119,6 +112,23 @@ var loadem = function() {
         return array;
     }
 
+    function spliceIt(obj){
+        console.log("spliceIt");
+        obj.parent.setChildIndex(obj, obj.parent.getNumChildren()-1);//put it on top while dragging
+        stage.addChild(insertBar);
+        var i;
+        var p0;
+        for (i=0; i<bitmaps.length; i++){
+            p0 = obj.localToLocal(0,0, bitmaps[i]);
+            if (obj.hitTest(p0.x, p0.y)){
+                console.log("hit bitmap: " + i);
+                insertBar.x = bitmaps[i].x;
+            }
+        }
+    }
+    function diceIt(){
+        console.log("diceit");
+    }
     function handleFileComplete() {
         imagesLoaded++;
         console.log("imagesLoaded: " + imagesLoaded);
@@ -149,7 +159,7 @@ var loadem = function() {
                         spacer = 30;
                     }
                     var width, height;
-                    var dndItem;
+                    var dndItem, tile;
                     var originalWidth = images[i].width; // Current image width
                     var originalHeight = images[i].height; // Current image height
 
@@ -178,19 +188,18 @@ var loadem = function() {
 
                      var finalRatio = width/originalWidth;
                      bitmap = new createjs.Bitmap(finalFourImages[i]);
+                     bitmaps.push(bitmap);
                      container.addChild(bitmap);
                      bitmap.scaleX = finalRatio;
                      bitmap.scaleY = finalRatio;
                      bitmap.x = previousWidth;
-                     //stage.addChild(bitmap);
                      previousWidth += width;
 
-                     //bitmap.cursor = "pointer";
-
                      dndItem = draggableItem();
-                     dndItem.init(this, bitmap);
+                     dndItem.init(this, bitmap, spliceIt, diceIt);
 
-
+                     tile = tileItem();
+                     tile.init(bitmap, bitmap.x, bitmap.y, i);
 
                 }
 
@@ -203,6 +212,8 @@ var loadem = function() {
     //var context = canvas.getContext('2d');
     //context.clearRect(0, 0, canvas.width, canvas.height);
 
+    //NOTE: CAN'T HAVE CONTEXT AND A CJS STAGE AT THE SAME TIME!!! CHOOSE ONE OR THE OTHER!
+
     var preload = new createjs.LoadQueue(false); //setting this value to false allows local preloading
     preload.addEventListener("fileload", handleFileComplete);
 
@@ -214,11 +225,15 @@ var loadem = function() {
         stage.enableMouseOver(10);
         stage.mouseMoveOutside = true; // keep tracking the mouse even when it leaves the canvas
 
- var circle = new createjs.Shape();
-circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-circle.x = 100;
-circle.y = 100;
-stage.addChild(circle);
+var insertBar = new createjs.Shape();//will light up to show us where the bitmap being dragged will drop
+insertBar.graphics.beginFill("green").drawRect(0, 0, 5, 170);
+
+var bitmaps = [];
+//  var circle = new createjs.Shape();
+// circle.graphics.beginFill("red").drawCircle(0, 0, 50);
+// circle.x = 100;
+// circle.y = 100;
+// stage.addChild(circle);
 
 
     //var nancyArray = [{nanc11: 'nancya.png'}, {nancy2:'nancyb.png'}, {nancy3:'nancyc.png'}, {nancy4:'nancyd.png'}];
